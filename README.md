@@ -2,7 +2,7 @@ I think the issue happen when you have your workers running and start workflows 
 
 ## Configuration
 
-See [temporal.properties](./src/main/resources/temporal.properties) file.
+See [temporal.properties](./java-sdk-metrics/src/main/resources/temporal.properties) file.
 
 ## Start environment
 
