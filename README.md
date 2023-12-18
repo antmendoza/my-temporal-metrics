@@ -1,5 +1,3 @@
-I think the issue happen when you have your workers running and start workflows at the same time
-
 ## Configuration
 
 See [temporal.properties](./java-sdk-metrics/src/main/resources/temporal.properties) file.
