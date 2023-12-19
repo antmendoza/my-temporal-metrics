@@ -19,8 +19,11 @@
 
 package com.antmendoza.temporal;
 
+import com.antmendoza.temporal.config.ScopeBuilder;
 import com.antmendoza.temporal.config.SslContextBuilderProvider;
 import com.antmendoza.temporal.workflow.IGreetingWorkflow;
+import com.uber.m3.tally.Scope;
+import com.uber.m3.util.ImmutableMap;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
@@ -29,30 +32,19 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 
 import static com.antmendoza.temporal.WorkerSsl2.TASK_QUEUE;
+import static com.antmendoza.temporal.WorkerSsl2.createClient;
 
 public class Starter2 {
 
 
     public static void main(String[] args) {
 
-        SslContextBuilderProvider sslContextBuilderProvider = new SslContextBuilderProvider();
-
-        WorkflowServiceStubs service =
-                WorkflowServiceStubs.newServiceStubs(
-                        WorkflowServiceStubsOptions.newBuilder()
-                                .setSslContext(sslContextBuilderProvider.getSslContext())
-                                .setTarget(sslContextBuilderProvider.getTargetEndpoint())
-                                .build());
 
 
-        WorkflowClientOptions clientOptions =
-                WorkflowClientOptions.newBuilder()
-                        .setNamespace(sslContextBuilderProvider.getNamespace())
-                        .build();
-        WorkflowClient client = WorkflowClient.newInstance(service, clientOptions);
+        Scope metricsScope =null;
 
+        WorkflowClient client = createClient( metricsScope);
 
-//        Stream<WorkflowExecutionMetadata> result = client.listExecutions("CloseTime < '2022-06-08T16:46:34-08:00'");
 
 
         while (true) {

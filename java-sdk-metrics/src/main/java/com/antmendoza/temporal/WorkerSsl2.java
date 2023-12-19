@@ -23,8 +23,7 @@ public class WorkerSsl2 {
     public static void main(String[] args) throws Exception {
 
 
-        // Create SSL enabled client by passing SslContext, created by SimpleSslContextBuilder.
-        SslContextBuilderProvider sslContextBuilderProvider = new SslContextBuilderProvider();
+
 
 
         System.out.println("PORT : " + FromEnv.getWorkerPort());
@@ -41,28 +40,10 @@ public class WorkerSsl2 {
                 "worker",
                 "WorkerSsl_" + port)
         );
-
-
         metricsScope.gauge("ACTIONS_PER_SECOND").update(actions);
-        WorkflowServiceStubs service =
-                WorkflowServiceStubs.newServiceStubs(
-                        WorkflowServiceStubsOptions.newBuilder()
-                                // Add metrics scope to workflow service stub options
-                                //or it is a better option to have the rate limit on workflow code itself?
-                                .setMetricsScope(metricsScope)
-                                .setSslContext(sslContextBuilderProvider.getSslContext())
-                                .setTarget(sslContextBuilderProvider.getTargetEndpoint())
-                                .build());
 
 
-        // Now setup and start workflow worker, which uses SSL enabled gRPC service to communicate with
-        // backend.
-        // client that can be used to start and signal workflows.
-        WorkflowClient client =
-                WorkflowClient.newInstance(
-                        service, WorkflowClientOptions.newBuilder()
-                                .setNamespace(sslContextBuilderProvider.getNamespace())
-                                .build());
+        WorkflowClient client = createClient( metricsScope);
 
 
 //        System.out.println(">>> " + client.getWorkflowServiceStubs().healthCheck().getStatus());
@@ -93,6 +74,49 @@ public class WorkerSsl2 {
 
         // timeouts, retry & heartbeat impact
         factory.start();
+    }
+
+    public static WorkflowClient createClient( Scope metricsScope) {
+
+
+        SslContextBuilderProvider sslContextBuilderProvider = new SslContextBuilderProvider();
+        String namespace = sslContextBuilderProvider.getNamespace();
+
+        if(namespace.equals("default")){
+            WorkflowServiceStubs service =
+                    WorkflowServiceStubs.newServiceStubs(
+                            WorkflowServiceStubsOptions.newBuilder()
+                                    .setMetricsScope(metricsScope)
+                                    .build());
+
+
+            WorkflowClient client =
+                    WorkflowClient.newInstance(
+                            service, WorkflowClientOptions.newBuilder()
+                                    .build());
+            return client;
+        }
+
+
+        WorkflowServiceStubs service =
+                WorkflowServiceStubs.newServiceStubs(
+                        WorkflowServiceStubsOptions.newBuilder()
+                                .setMetricsScope(metricsScope)
+                                .setSslContext(sslContextBuilderProvider.getSslContext())
+                                .setTarget(sslContextBuilderProvider.getTargetEndpoint())
+                                .build());
+
+
+        WorkflowClient client =
+                WorkflowClient.newInstance(
+                        service, WorkflowClientOptions.newBuilder()
+                                .setNamespace(namespace)
+                                .build());
+        return client;
+
+
+
+
     }
 
 }
