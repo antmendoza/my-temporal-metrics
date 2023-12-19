@@ -77,6 +77,7 @@ public class WorkerSsl2 {
 
         WorkerOptions build1 = WorkerOptions.newBuilder()
                 .setMaxTaskQueueActivitiesPerSecond(actions)
+                .setDisableEagerExecution(FromEnv.getDisableEagerDispatch())
                 .build();
 
         Worker worker = factory.newWorker(TASK_QUEUE, build1);

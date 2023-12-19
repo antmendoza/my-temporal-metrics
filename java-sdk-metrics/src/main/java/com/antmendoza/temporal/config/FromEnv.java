@@ -13,4 +13,8 @@ public class FromEnv {
         return System.getenv("SLEEP_ACTIVITY_IN_MS");
 
     }
+
+    public static boolean getDisableEagerDispatch() {
+        return Boolean.valueOf(System.getenv("DISABLE_EAGER_DISPATCH"));
+    }
 }
